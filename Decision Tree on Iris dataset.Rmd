@@ -1,0 +1,51 @@
+---
+title: "Prediction Using Decision Tree Algorithm"
+output: html_notebook
+---
+```{r}
+#Importing the given dataset(in csv format) from our working directory
+dataset = read.csv("C:/Users/hritv/Documents/R Programs/WorkingDirectory/Iris.csv")
+head(dataset)
+
+```
+```{r}
+summary(dataset)
+```
+```{r}
+library(rpart)
+set.seed(500)
+
+#splitting into training and testing data
+dataset[, 'train'] <- ifelse(runif(nrow(dataset)) < 0.75, 1, 0)
+
+training <- dataset[dataset$train == 1,]
+testing <- dataset[dataset$train == 0, ]
+
+#removing unwanted columns
+remove_cols <- grep('train|Id', names(training))
+
+training <- training[, -remove_cols]
+testing <- testing[, -remove_cols]
+
+#fitting the data into the model
+model <- rpart(Species~SepalLengthCm + SepalWidthCm + PetalLengthCm + PetalWidthCm,data=training,method = 'class')
+print(model)
+```
+```{r}
+library(rpart.plot)
+
+#visualizing the decision tree hence created
+rpart.plot(model)
+
+#predicting values from the test set using the model
+prediction <- predict(model,newdata=testing[-5],type = 'class')
+
+```
+```{r}
+# Printing the confusion matrix to check the accuracy of our model
+library(caret)
+confusionMatrix(prediction, as.factor(testing$Species))
+```
+
+
+
